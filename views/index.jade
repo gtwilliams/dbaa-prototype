@@ -1,0 +1,35 @@
+//- Copyright (c) 2015 Garry T. Williams
+
+extends layout
+
+block content
+  h1.title= title
+  div.container
+    div.row
+      div.col-sm-3.col-md-2.sidebar
+        ul.nav.nav-sidebar
+          li.active: a(href="#") Home
+          li: a(href="#") DBAA Game Results
+          li: a(href="#") Club Web Sites
+          li: a(href="#") Tournaments
+          li: a(href="#") Bridge Teachers
+          li: a(href="#") Area Games
+          li: a(href="#") Atlanta Junior Bridge
+          li: a(href="#") Governance
+          li: a(href="#") Lecture Series
+          li: a(href="#") Other Links
+          li: a(href="#") Newsletters
+          li: a(href="#") Member Directory
+      div.col-sm-9.col-md-10.main
+        div.header
+          img(src='/images/atlanta_skyline2.jpg')
+          h4 Welcome to #{title}
+          img.logo(src='/images/DBAA_Logo_2009.gif')
+        include ./includes/change-of-rank.jade
+        include ./includes/dbaa-news.jade
+        include ./includes/new-directories.jade
+        include ./includes/upcoming-tournaments.jade
+        include ./includes/who-are-we.jade
+          
+
+//- vim: sw=2 ts=8 et ai syn=haml

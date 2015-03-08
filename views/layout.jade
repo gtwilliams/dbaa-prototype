@@ -1,0 +1,19 @@
+//- Copyright (c) 2015 Garry T. Williams
+
+doctype html
+html
+  head
+    title= title
+    meta(charset='UTF-8')
+    meta(name='description', content='#{title}')
+    link(rel='icon' href='/images/favicon.gif' type='image/gif')
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap-responsive.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    //- script(src='/javascripts/jquery-1.11.2.min.js', type='text/javascript')
+    //- script(src='/javascripts/bootstrap.min.js', type='text/javascript')
+    block head
+  body
+    block content
+
+//- vim: sw=2 ts=8 et ai syn=haml
