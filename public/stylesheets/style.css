@@ -4,10 +4,11 @@ body {
   padding: 5px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   color: #000;
+  /* background-color: #fff2e1; */
 }
 
 a {
-  color: #00B7FF;
+  color: #00b7ff;
 }
 
 /* Sidebar navigation */
@@ -33,6 +34,7 @@ div.header img {
     margin-left: auto;
     margin-right: auto;
 }
-div.header h4 { text-align: center; }
+img.skyline { width: 500px; height: 200px; }
+div.header h3 { text-align: center; }
 h1.title { text-align: center; }
 div.header, div.section { border-bottom: 1px solid black }
