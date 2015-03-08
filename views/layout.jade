@@ -10,10 +10,32 @@ html
     link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/bootstrap-responsive.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    //- script(src='/javascripts/jquery-1.11.2.min.js', type='text/javascript')
+    script(src='/javascripts/jquery-1.11.2.min.js', type='text/javascript')
     //- script(src='/javascripts/bootstrap.min.js', type='text/javascript')
     block head
   body
-    block content
+    h1.title Duplicate Bridge Association of Atlanta
+    div.container
+      div.row
+        div.col-sm-3.col-md-2.sidebar
+          ul.nav.nav-sidebar
+            li.home: a(href="/") Home
+            li: a(href="#") DBAA Game Results
+            li: a(href="#") Club Web Sites
+            li: a(href="#") Tournaments
+            li: a(href="#") Bridge Teachers
+            li: a(href="#") Area Games
+            li: a(href="#") Atlanta Junior Bridge
+            li: a(href="#") Governance
+            li: a(href="#") Lecture Series
+            li: a(href="#") Other Links
+            li.newsletters: a(href="/newsletters") Newsletters
+            li: a(href="#") Member Directory
+        div.col-sm-9.col-md-10.main
+          div.header
+            img(src='/images/atlanta_skyline2.jpg').skyline
+            //- h3 Welcome to the DBAA Home Page
+            img.logo(src='/images/DBAA_Logo_2009.gif')
+            block content
 
 //- vim: sw=2 ts=8 et ai syn=haml

@@ -1,0 +1,61 @@
+//- Copyright (c) 2015 Garry T. Williams
+
+extends layout
+
+block content
+  style(type="text/css").
+    div.list { margin-left: 40%; }
+  script(type="text/javascript").
+    (function () { $('li.newsletters').addClass('active') })();
+  h3 #{title}
+
+  div.list
+    ul
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2015 02.pdf"
+        ) February 2015
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2014 11.pdf"
+        ) November 2014
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2014 08.pdf"
+        ) August 2014
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2014 04.pdf"
+        ) April 2014
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2014 01.pdf"
+        ) January 2014
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2013 10.pdf"
+        ) October 2013
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2013 07.pdf"
+        ) July 2013
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter 2013 07 NABC.pdf"
+        ) July NABC 2013
+      li
+        a(
+          target="newsletter"
+          href="/pdfs/DBAA Newsletter - 04_23_2013 Rev.pdf"
+        ) April 2013
+
+//- vim: sts=2 sw=2 ts=8 et ai syn=haml
+
