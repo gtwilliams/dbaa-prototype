@@ -1,0 +1,22 @@
+//- Copyright (c) 2015 Garry T. Williams
+
+extends layout
+
+block content
+  h3 #{title}
+
+  div
+    form(method="post" action="create-new-login")
+      span.caption.
+        E-mail address:
+      input(name="login_name")
+      br
+      span.
+        By supplying your E-mail address above and clicking the submit
+        buton below, you will receive an E-mail message that will
+        allow you to create a login for this Web site.
+      br
+      input(type="submit" value="Submit")
+
+//- vim: sts=2 sw=2 ts=8 et ai syn=haml
+
