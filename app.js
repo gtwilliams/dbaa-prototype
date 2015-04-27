@@ -26,10 +26,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+var config = require('./config.json');
+
 app.use(session({
     resave: true,
     saveUninitialzed: true,
-    secret: 'Fia2gom2',
+    secret: config.session_secret,
     store: new RedisStore({
         host: 'localhost',
         port:6379
