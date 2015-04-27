@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SERVER_ROOT=${HOME}/myapp
-FILES="app.js"
+FILES="app.js config.json"
 DIRS="bin public routes views"
 
 [ -d $SERVER_ROOT ] || mkdir -p $SERVER_ROOT

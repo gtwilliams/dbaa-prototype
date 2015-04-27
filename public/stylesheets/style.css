@@ -38,3 +38,5 @@ img.skyline { width: 500px; height: 200px; }
 div.header h3 { text-align: center; }
 h1.title { text-align: center; }
 div.header, div.section { border-bottom: 1px solid black }
+
+span.caption { font-weight: bolder; }

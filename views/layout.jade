@@ -12,6 +12,8 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src='/javascripts/jquery-1.11.2.min.js', type='text/javascript')
     script(src='/javascripts/bootstrap.min.js', type='text/javascript')
+    script(type='text/javascript').
+      $(document).ready(function () { $('.focus').focus() });
     block head
   body
     block header

@@ -5,17 +5,39 @@ extends layout
 block content
   h3 #{title}
 
+  style(type="text/css").
+    span.explain { width: 300px; margin-bottom: 1em; display: block; }
+    input { margin-bottom: 1em; display: block; }
+    .missing {
+      border-style: solid;
+      border-color: red;
+      border-width: 2px;
+    }
+  script(type="text/javascript").
+    $(document).ready(function () {
+      $('input[type="submit"]').click(function (e) {
+        var missing;
+        $('input.required').each(function (i) {
+          if ($(this).val() == "") {
+            $(this).addClass('missing');
+            missing = true;
+          }
+        });
+        if (missing) {
+          alert("Required input missing.");
+          return false;
+        }
+      });
+    });
   div
     form(method="post" action="create-new-login")
       span.caption.
         E-mail address:
-      input(name="login_name")
-      br
-      span.
+      input.required.focus(name="login_name")
+      span.explain.
         By supplying your E-mail address above and clicking the submit
         buton below, you will receive an E-mail message that will
         allow you to create a login for this Web site.
-      br
       input(type="submit" value="Submit")
 
 //- vim: sts=2 sw=2 ts=8 et ai syn=haml

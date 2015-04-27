@@ -2,11 +2,22 @@
 
 var express = require('express');
 var router  = express.Router();
+var config  = require('../config.json');
 var pg      = require('pg');
-var conn    = "postgres://garry:Fia2gom2@localhost/dbaa";
+var conn    = "postgres://" + config.dbuser + ":" + config.dbpass +
+	      "@localhost/dbaa";
 var client  = new pg.Client(conn);
 var mailer  = require('nodemailer');
-var mail    = mailer.createTransport();
+var smtp    = require('nodemailer-smtp-transport');
+var mail    = mailer.createTransport(smtp({
+    debug: true,
+    service: 'SES',
+    host: 'email-smtp.us-west-2.amazonaws.com',
+    auth: {
+	user: config.smtpuser,
+	pass: config.smtppass
+    }
+}));
 
 client.connect();
 
@@ -20,13 +31,13 @@ router.get('/newsletters', function(req, res, next) {
     res.render('newsletters', { title: 'DBAA Newsletters' });
 });
 
-/* For POST, you need body-parser and parameters show up in
- * req.body.PARAM.  For GET, they automatically show up in
- * req.query.PARAM. */
 /* Create a new login ID */
 router.post('/create-new-login', function(req, res, next) {
-    if (req.body.login_name === undefined)
+    /* Hmmm.  This is an internal error, I guess.  Should probably
+     * handle it differently. */
+    if (req.body.login_name === undefined || req.body.login_name == "")
 	return res.render('create-login', {title: 'Create User Login'});
+
     mail.sendMail({
 	from: "gtwilliams@gmail.com",
 	to: req.body.login_name,
@@ -35,7 +46,21 @@ router.post('/create-new-login', function(req, res, next) {
     }, function (err, info) {
 	if (err) {
 	    console.log("Oops: " + err);
+	    return res.render('mail-send-error',
+		{
+		    title: 'Send E-mail Error',
+		    e_mail: req.body.login_name,
+		    error: err
+		}
+	    );
 	}
+
+	return res.render('sent-mail',
+	    {
+		e_mail: req.body.login_name,
+		title: 'E-mail Sent'
+	    }
+	);
     });
 });
 

@@ -1,0 +1,14 @@
+//- Copyright (c) 2015 Garry T. Williams
+
+extends layout
+
+block content
+  h3 #{title}
+
+  div
+    span.
+      We encountered an error attempting to send mail to #{e_mail}:
+      #{error}
+
+//- vim: sts=2 sw=2 ts=8 et ai syn=haml
+

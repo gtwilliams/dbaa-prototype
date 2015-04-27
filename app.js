@@ -36,18 +36,6 @@ app.use(session({
     })
 }));
 
-/*
-app.use(function (req, res, next) {
-    if (req.cookies !== undefined &&
-        req.cookies['connect.sid'] !== undefined)
-    {
-        console.log(req.cookies['connect.sid']);
-    }
-
-    next(); // call the next middleware
-});
-*/
-
 app.use(express.static(__dirname + '/public'));
 
 app.use('/', routes);
