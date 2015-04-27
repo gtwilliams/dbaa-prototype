@@ -31,12 +31,21 @@ router.get('/newsletters', function(req, res, next) {
     res.render('newsletters', { title: 'DBAA Newsletters' });
 });
 
+router.get('/create-new-login/:id', function(req, res, next) {
+});
+
+router.post('/create-new-login/:id', function(req, res, next) {
+});
+
 /* Create a new login ID */
 router.post('/create-new-login', function(req, res, next) {
     /* Hmmm.  This is an internal error, I guess.  Should probably
      * handle it differently. */
     if (req.body.login_name === undefined || req.body.login_name == "")
 	return res.render('create-login', {title: 'Create User Login'});
+
+    // get an ID recorded to but in the URL
+    var id = crypto.randomBytes(20).toString('hex');
 
     mail.sendMail({
 	from: "gtwilliams@gmail.com",
