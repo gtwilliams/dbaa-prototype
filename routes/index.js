@@ -8,7 +8,7 @@ var bcrypt  = require('bcryptjs');
 var pg      = require('pg');
 var conn    = "postgres://" + config.dbuser + ":" + config.dbpass +
               "@localhost/dbaa";
-var client  = new pg.Client(conn);
+var db      = new pg.Client(conn);
 var mailer  = require('nodemailer');
 var smtp    = require('nodemailer-smtp-transport');
 var mail    = mailer.createTransport(smtp({
@@ -21,26 +21,32 @@ var mail    = mailer.createTransport(smtp({
     }
 }));
 
-client.connect();
+db.connect();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.render('index', {
         title: 'Welcome to the DBAA Home Page',
-        login: req.session.name
+        login: req.session.e_mail,
+        name: req.session.name
     });
 });
 
 /* GET newsletters */
 router.get('/newsletters', function(req, res, next) {
-    res.render('newsletters', { title: 'DBAA Newsletters' });
+    res.render('newsletters', {
+        title: 'DBAA Newsletters',
+        login: req.session.e_mail,
+        name: req.session.name
+    });
 });
 
+/* Someone got here from an E-mail message. */
 router.get('/create-login/:id', function(req, res, next) {
     var q = "SELECT id, e_mail\n" +
             "  FROM e_mail_campaign\n" +
             " WHERE id = $1";
-    client.query(q, [ req.params.id ], function (err, result, done) {
+    db.query(q, [ req.params.id ], function (err, result, done) {
         if (result.rows.length == 0) {
             var err = new Error('Not Found');
             err.status = 404;
@@ -56,14 +62,17 @@ router.get('/create-login/:id', function(req, res, next) {
     });
 });
 
+/* Final step: create the login record. */
 router.post('/create-login', function(req, res, next) {
     /* Validate input data */
     var q = "SELECT id, e_mail\n" +
             "  FROM e_mail_campaign\n" +
             " WHERE id = $1";
-    client.query(q, [ req.body.id ], function (err, result, done) {
-        if (err)
-            return res.render('error', err);
+    db.query(q, [ req.body.id ], function (err, result, done) {
+        if (err) {
+            err.status = 500;
+            return next(err);
+        }
 
         /* The end-user never sees the unique ID in this form -- it's
          * supplied in a hidden input element.  So, if it's invalid,
@@ -94,10 +103,12 @@ router.post('/create-login', function(req, res, next) {
         q = "INSERT INTO users (login, password, name, e_mail)\n" +
             "VALUES ($1, $2, $3, $4)";
         bcrypt.hash(req.body.password, 8, function (err, hash) {
-            if (err)
-                return res.render('error', err);
+            if (err) {
+                err.status = 500;
+                return next(err);
+            }
 
-            client.query(q, [ req.body.e_mail, hash, req.body.name,
+            db.query(q, [ req.body.e_mail, hash, req.body.name,
                 req.body.e_mail ], function (err, result, done) {
                 if (err) {
                     console.log("Error trying to insert new login ID");
@@ -106,8 +117,8 @@ router.post('/create-login', function(req, res, next) {
                 }
 
                 /* Set session to logged in */
-                req.session.authenticated = true;
-                req.session.name = req.body.name;
+                req.session.name   = req.body.name;
+                req.session.e_mail = req.body.e_mail;
                 return res.render('index', {
                     title: 'Welcome to the DBAA Home Page',
                     login: req.session.name
@@ -117,7 +128,7 @@ router.post('/create-login', function(req, res, next) {
     });
 });
 
-/* Create a new login ID */
+/* Create a new login ID -- we asked for an E-mail address */
 router.post('/create-new-login', function(req, res, next) {
     /* Hmmm.  This is an internal error, I guess.  Should probably
      * handle it differently. */
@@ -133,79 +144,55 @@ router.post('/create-new-login', function(req, res, next) {
              "VALUES ($1, $2, 'Create Login', 0)";
 
     /* Record the unique value to associate with this E-mail address. */
-    client.query(q, [ req.body.login_name, id ],
-        function (err, result, done) {
-            if (err)
-                return res.render('error', err);
-
-            /* Send the E-mail with the unique, unguessable value that
-             * we can look up in the database to get the E-mail
-             * address later. */
-            mail.sendMail({
-                from: "Garry Williams <gtwilliams@gmail.com>",
-                to: req.body.login_name,
-                subject: "Create Login on DBAA Web Site",
-                text: "Go here to complete your sign-up: " +
-                    req.protocol + "://" + req.get('host') +
-                    "/create-login/" + id
-            }, function (err, info) {
-                if (err) {
-                    console.log("send E-mail failed: " + err);
-                    res.render('mail-send-error', {
-                        title  : 'Send E-mail Error',
-                        e_mail : req.body.login_name,
-                        error  : err
-                    });
-
-                    /* If the E-mail message never went out, no need
-                     * to remember the E-mail address. */
-                    var q = "DELETE FROM e_mail_campaign\n" +
-                            " WHERE id = $1";
-                    client.query(q, [ id ],
-                        function (err, result, done) {
-                            if (err)
-                                return res.render('error', err);
-                    });
-
-                    return;
-                }
-
-                else {
-                    return res.render('sent-mail', {
-                        e_mail : req.body.login_name,
-                        title  : 'E-mail Sent'
-                    });
-                }
-            });
+    db.query(q, [ req.body.login_name, id ], function (err, result, done) {
+        if (err) {
+            err.status = 500;
+            return next(err);
         }
-    );
+
+        /* Send the E-mail with the unique, unguessable value that
+         * we can look up in the database to get the E-mail
+         * address later. */
+        mail.sendMail({
+            from: "Garry Williams <gtwilliams@gmail.com>",
+            to: req.body.login_name,
+            subject: "Create Login on DBAA Web Site",
+            text: "Go here to complete your sign-up: " +
+                req.protocol + "://" + req.get('host') +
+                "/create-login/" + id
+        }, function (err, info) {
+            if (err) {
+                console.log("send E-mail failed: " + err);
+                res.render('mail-send-error', {
+                    title  : 'Send E-mail Error',
+                    e_mail : req.body.login_name,
+                    error  : err
+                });
+
+                /* If the E-mail message never went out, no need
+                 * to remember the E-mail address. */
+                var q = "DELETE FROM e_mail_campaign\n" +
+                        " WHERE id = $1";
+                db.query(q, [ id ],
+                    function (err, result, done) {
+                        if (err)
+                            return res.render('error', err);
+                });
+
+                return;
+            }
+
+            else
+                return res.render('sent-mail', {
+                    e_mail : req.body.login_name,
+                    title  : 'E-mail Sent'
+                });
+        });
+    });
 });
 
 router.get('/create-new-login', function(req, res, next) {
     res.render('create-new-login', {title: 'Create User Login'});
-});
-
-/* GET test E-mail link */
-var q = "SELECT name, e_mail, campaign\n" +
-        "  FROM e_mail_campaign\n" +
-        " WHERE id = $1";
-router.get('/campaign/:id', function(req, res, next) {
-    console.log("id:", req.params.id);
-    client.query(q, [ req.params.id ], function (err, result) {
-        if (err)
-            return res.render('error', err);
-
-        if (result.rows.length == 0)
-            return res.render('internal-error',
-                { detail: "can't find E-mail campaign ID " +
-                    req.params.id});
-
-        console.log(result.rows[0].name + "|" +
-            result.rows[0].e_mail + "|" + result.rows[0].campaign);
-
-        return res.render('newsletters', { title:
-            'DBAA Newsletters' });
-    });
 });
 
 module.exports = router;
