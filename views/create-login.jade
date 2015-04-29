@@ -16,6 +16,7 @@ block content
   script(type="text/javascript").
     $(document).ready(function () {
       $('input[type="submit"]').click(function (e) {
+        /* check for missing data */
         var missing;
         $('input.required').each(function (i) {
           if ($(this).val() == "") {
@@ -27,17 +28,37 @@ block content
           alert("Required input missing.");
           return false;
         }
+
+        /* validate that both password values match */
+        if ($('input[name="password"]').val() !=
+            $('input[name="duppassword"]').val())
+        {
+          alert("password values do not match");
+          return false;
+        }
       });
     });
   div
-    form(method="post" action="create-new-login")
+    form(method="post" action="/create-login")
+      input(type="hidden" name="id" value="#{id}")
+      input(type="hidden" name="e_mail" value="#{e_mail}")
       span.caption.
-        E-mail address:
-      input.required.focus(name="login_name")
+        E-mail address: #{e_mail}
+      br
+      span.caption.
+        Real name:
+      input.focus.required(name="name")
       span.explain.
-        By supplying your E-mail address above and clicking the submit
-        buton below, you will receive an E-mail message that will
-        allow you to create a login for this Web site.
+        Enter your password twice (so that we know you didn't mis-type
+        it) below to complete your sign-up.  In the future, you will
+        use this E-mail address as your login ID and the password you
+        give us now as your password.
+      span.caption.
+        Password:
+      input.required(type="password" name="password")
+      span.caption.
+        Password again to verify:
+      input.required(type="password" name="duppassword")
       input(type="submit" value="Submit")
 
 //- vim: sts=2 sw=2 ts=8 et ai syn=haml
