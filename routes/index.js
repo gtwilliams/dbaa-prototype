@@ -27,7 +27,7 @@ client.connect();
 router.get('/', function(req, res, next) {
     res.render('index', {
         title: 'Welcome to the DBAA Home Page',
-        name: req.session.name
+        login: req.session.name
     });
 });
 
