@@ -111,9 +111,9 @@ router.get('/create-login/:id', function (req, res, next) {
             " WHERE id = $1";
     db.query(q, [ req.params.id ], function (err, result, done) {
         if (result.rows.length == 0) {
-            var err = new Error('Not Found');
-            err.status = 404;
-            return next(err);
+            var e = new Error('Not Found');
+            e.status = 404;
+            return next(e);
         }
 
         /* Show sign-up form */
@@ -144,9 +144,9 @@ router.post('/create-login', function(req, res, next) {
         if (result.rows.length == 0) {
             console.log("can't find id=" + req.body.id +
                 " in the e_mail_canpaign table");
-            var err = new Error('Not Found');
-            err.status = 404;
-            return next(err);
+            var e = new Error('Not Found');
+            e.status = 404;
+            return next(e);
         }
 
         /* Again, the user shouldn't have a way to do this since the
@@ -157,9 +157,9 @@ router.post('/create-login', function(req, res, next) {
             req.body.name == "")
         {
             console.log("user's passwords don't match");
-            var err = new Error('Not Found');
-            err.status = 404;
-            return next(err);
+            var e = new Error('Not Found');
+            e.status = 404;
+            return next(e);
         }
 
         /* Create the login ID */
