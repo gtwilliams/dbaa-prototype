@@ -24,7 +24,7 @@ var mail    = mailer.createTransport(smtp({
 db.connect();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
     res.render('index', {
         title: 'Welcome to the DBAA Home Page',
         login: req.session.e_mail,
@@ -33,7 +33,7 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET newsletters */
-router.get('/newsletters', function(req, res, next) {
+router.get('/newsletters', function (req, res, next) {
     res.render('newsletters', {
         title: 'DBAA Newsletters',
         login: req.session.e_mail,
@@ -41,8 +41,71 @@ router.get('/newsletters', function(req, res, next) {
     });
 });
 
+/* Login */
+router.get('/login', function (req, res, next) {
+    res.render('login', {
+        title: 'Login',
+        login: req.session.e_mail,
+        name: req.session.name
+    });
+});
+
+router.post('/login', function (req, res, next) {
+    /* validate user's credentials */
+    if (!req.body.e_mail || req.body.e_mail == "") {
+        res.render('login', {
+            title: 'Login',
+            login: req.session.e_mail,
+            name: req.session.name
+        });
+
+        return;
+    }
+
+    var q = "SELECT login, password, name\n" +
+            "  FROM users\n" +
+            " WHERE login = $1";
+    db.query(q, [ req.body.e_mail ], function (err, result, done) {
+        if (!result.rows || result.rows.length == 0) {
+            res.render('login', {
+                title: 'Login',
+                login: req.session.e_mail,
+                name: req.session.name
+            });
+
+            return;
+        }
+
+        bcrypt.compare(req.body.password,
+            result.rows[0].password, function (err, crypt_result) {
+            /* OK, we have matched the E-mail address and password. */
+            if (crypt_result) {
+                req.session.name   = result.rows[0].name;
+                req.session.e_mail = req.body.e_mail;
+                return res.redirect('/');
+            }
+
+            /* Something doesn't match. */
+            else {
+                console.log("password/login wrong: " +
+                    req.body.e_mail + ":" +
+                    req.body.password + ":" +
+                    result.rows[0].password);
+                delete req.session.name;
+                delete req.session.e_mail;
+                res.render('login', {
+                    error: true,
+                    title: 'Login',
+                    login: req.session.e_mail,
+                    name: req.session.name
+                });
+            }
+        });
+    });
+});
+
 /* Someone got here from an E-mail message. */
-router.get('/create-login/:id', function(req, res, next) {
+router.get('/create-login/:id', function (req, res, next) {
     var q = "SELECT id, e_mail\n" +
             "  FROM e_mail_campaign\n" +
             " WHERE id = $1";

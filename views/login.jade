@@ -1,0 +1,75 @@
+//- Copyright (c) 2015 Garry T. Williams
+
+extends layout
+
+block content
+  script(type="text/javascript").
+    (function () { $('li.login').addClass('active') })();
+  h3 #{title}
+
+  style(type="text/css").
+    span.explain { width: 300px; margin-bottom: 1em; display: block; }
+    span.error {
+      width: 300px;
+      margin-bottom: 1em;
+      display: block;
+      color: red;
+    }
+    input { margin-bottom: 1em; display: block; }
+    .missing {
+      border-style: solid;
+      border-color: red;
+      border-width: 2px;
+    }
+  script(type="text/javascript").
+    $(document).ready(function () {
+      $('input[type="submit"]').click(function (e) {
+        /* check for missing data */
+        var missing;
+        $('input.required', e.target).each(function (i) {
+          if ($(this).val() == "") {
+            $(this).addClass('missing');
+            missing = true;
+          }
+        });
+        if (missing) {
+          alert("Required input missing.");
+          return false;
+        }
+      });
+    });
+  div
+    form(method="post" action="/login")
+      if error
+        span.error.
+          Either your E-mail address or password doesn't match our
+          records.
+      span.caption.
+        E-mail address:
+      input.focus.required(name="e_mail")
+      span.caption.
+        Password:
+      input.required(type="password" name="password")
+      input(type="submit" value="Login")
+    form(method="post" action="/create-new-login")
+      span.explain.
+        Don't have a login here?  No problem.  Enter your E-mail
+        address below and and hit the New Login button below and we'll
+        mail you an invitation to sign up for a login.
+      span.caption.
+        E-mail address:
+      input.required(name="login_name")
+      input(type="submit" value="New Login")
+    form(method="post" action="/reset-password")
+      span.explain.
+        Forgot your password? That's no problem either.  Enter your
+        E-mail address below and hit the Reset Password button and
+        we'll send you an E-mail message with a URL in it that will
+        allow you to specify a new password.
+      span.caption.
+        E-mail address:
+      input.required(name="e-mail")
+      input(type="submit" value="Reset Password")
+
+//- vim: sts=2 sw=2 ts=8 et ai syn=haml
+

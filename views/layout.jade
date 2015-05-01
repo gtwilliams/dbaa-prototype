@@ -35,8 +35,12 @@ html
           li.newsletters
             a(href="/newsletters") Newsletters
         ul.nav.navbar-nav.navbar-right
-          li
-            a(href="/myaccount") #{login}
+          li.login
+            if login != undefined
+              a(href="/myaccount") #{name}
+            else
+              a(href="/login") Login
+
     block content
 
 
