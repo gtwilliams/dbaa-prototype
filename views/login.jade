@@ -60,7 +60,7 @@ block content
         E-mail address:
       input.required(name="login_name")
       input(type="submit" value="New Login")
-    form(method="post" action="/reset-password")
+    form(method="get" action="/reset-password")
       span.explain.
         Forgot your password? That's no problem either.  Enter your
         E-mail address below and hit the Reset Password button and
@@ -72,4 +72,3 @@ block content
       input(type="submit" value="Reset Password")
 
 //- vim: sts=2 sw=2 ts=8 et ai syn=haml
-
