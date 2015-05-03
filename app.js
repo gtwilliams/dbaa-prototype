@@ -7,8 +7,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
-
 var app = express();
 
 var RedisStore = require('connect-redis')(session);
@@ -40,7 +38,9 @@ app.use(session({
 
 app.use(express.static(__dirname + '/public'));
 
-app.use('/', routes);
+app.use('/', require('./routes/index'));
+app.use('/', require('./routes/login'));
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
