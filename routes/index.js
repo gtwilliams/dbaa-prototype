@@ -1,12 +1,11 @@
 /* Copyright (c) 2015 Garry T. Williams */
 
-var express = require('express');
-var router  = express.Router();
-var config  = require('../config.json');
-var pg      = require('pg');
-var conn    = "postgres://" + config.dbuser + ":" + config.dbpass +
-              "@localhost/dbaa";
-var db      = new pg.Client(conn);
+var router = require('express').Router();
+var config = require('../config.json');
+var pg     = require('pg');
+var conn   = "postgres://" + config.dbuser + ":" + config.dbpass +
+             "@localhost/dbaa";
+var db     = new pg.Client(conn);
 
 db.connect();
 

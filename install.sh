@@ -15,6 +15,7 @@ done
 
 # generate style sheets
 for s in $STYLESHEETS/*.less; do
+    echo "$LESSCSS $s > ${s%%.*}.css"
     $LESSCSS $s > ${s%%.*}.css
 done
 
