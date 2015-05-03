@@ -2,3 +2,5 @@ node_modules
 *.swp
 config.json
 .settings
+# the following file is generated now:
+public/stylesheets/style.css

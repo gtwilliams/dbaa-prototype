@@ -1,0 +1,89 @@
+/* Copyright (c) 2015 Garry T. Williams */
+
+body {
+  padding: 5px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  color: #000;
+  background-color: #fff2e1;
+}
+
+/* navbar */
+@bgDefault      : #e74c3c;
+@bgHighlight    : #c0392b;
+@colDefault     : #ecf0f1;
+@colHighlight   : #ffbbbc;
+@dropDown       : true;
+.ddm() when (@dropDown) {
+  > .dropdown-menu {
+    background-color: @bgDefault;
+    > li > a {
+      color: @colDefault;
+      &:hover,  &:focus {
+        color: @colHighlight;
+        background-color: @bgHighlight; }}
+    .divider {
+      background-color: @bgHighlight;}}}
+.navbar-default {
+  background-color: @bgDefault;
+  border-color: @bgHighlight;
+  .navbar-brand {
+    color: @colDefault;
+    &:hover, &:focus { 
+      color: @colHighlight; }}
+  .navbar-text {
+    color: @colDefault; }
+  .navbar-nav {
+    > li {
+      > a {
+        color: @colDefault;
+        &:hover,  &:focus {
+          color: @colHighlight; }}
+      .ddm }
+    > .active {
+      > a, > a:hover, > a:focus {
+        color: @colHighlight;
+        background-color: @bgHighlight; }}
+    > .open {
+      > a, > a:hover, > a:focus {
+        color: @colHighlight;
+        background-color: @bgHighlight; }}}
+  .navbar-toggle {
+    border-color: @bgHighlight;
+    &:hover, &:focus {
+      background-color: @bgHighlight; }
+    .icon-bar {
+      background-color: @colDefault; }}
+  .navbar-collapse,
+  .navbar-form {
+    border-color: @colDefault; }
+  .navbar-link {
+    color: @colDefault;
+    &:hover {
+      color: @colHighlight; }}}
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu {
+    > li > a {
+      color: @colDefault;
+      &:hover, &:focus {
+        color: @colHighlight; }}
+    > .active {
+      > a, > a:hover, > a:focus {
+        color: @colHighlight;
+        background-color: @bgHighlight; }}}
+}
+
+/* main */
+div.header img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+img.skyline { width: 500px; height: 200px; }
+div.header h3 { text-align: center; }
+h1.title { text-align: center; }
+div.header, div.section { border-bottom: 1px solid black }
+
+span.caption { font-weight: bolder; }
+
+/* vim: sw=4 sts=4 et ts=8 ai syn=css
+*/
