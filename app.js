@@ -9,7 +9,7 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
-var RedisStore = require('connect-redis')(session);
+var Redis = require('connect-redis')(session);
 
 app.locals.pretty = true;
 
@@ -24,23 +24,30 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-var config = require('./config.json');
-
-app.use(session({
-    resave: true,
-    saveUninitialzed: true,
-    secret: config.session_secret,
-    store: new RedisStore({
-        host: 'localhost',
-        port:6379
-    })
-}));
+/* Initialize session handler and store. */
+(function () {
+    var config = require('./config.json');
+    app.use(session({
+        resave: true,
+        saveUninitialzed: true,
+        secret: config.session_secret,
+        store: new Redis({
+            host: 'localhost',
+            port:6379
+        })
+    }));
+})();
 
 app.use(express.static(__dirname + '/public'));
 
-app.use('/', require('./routes/index'));
-app.use('/', require('./routes/login'));
-
+/* Hook up all route files. */
+(function () {
+    var files = require('glob').sync(__dirname + '/routes/*.js');
+    for (var i = 0; i < files.length; i++) {
+        console.log("app.use('/', require('" + files[i] + "'));");
+        app.use('/', require(files[i]));
+    }
+})();
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
