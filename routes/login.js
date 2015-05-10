@@ -1,7 +1,6 @@
 /* Copyright (c) 2015 Garry T. Williams */
 
-var express = require('express');
-var router  = express.Router();
+var router  = require('express').Router();
 var config  = require('../config.json');
 var crypto  = require('crypto');
 var bcrypt  = require('bcryptjs');
