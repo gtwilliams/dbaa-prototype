@@ -26,13 +26,14 @@ router.get('/myaccount', function (req, res, next) {
             "               d.first_name,\n" +
             "               d.last_name,\n" +
             "               d.acbl,\n" +
+            "               d.e_mail,\n" +
             "               n.type,\n" +
             "               n.number\n" +
             "          FROM directory d\n" +
             "          LEFT OUTER JOIN phone_number n\n" +
             "            ON d.id = n.directory\n" +
             "       ) d\n" +
-            "    ON u.id = d.id\n" +
+            "    ON u.e_mail = d.e_mail\n" +
             " WHERE u.e_mail = $1";
     db.query(q, [ req.session.e_mail ], function (err, result, done) {
         if (err) {
@@ -72,8 +73,8 @@ router.get('/myaccount', function (req, res, next) {
 
             /* Display the user's data for edit. */
             var uid = result.rows[0].id;
-            var fn  = result.rows[0].first_name;
-            var ln  = result.rows[0].last_name;
+            var fn  = result.rows[0].d_first || result.rows[0].first_name;
+            var ln  = result.rows[0].d_last  || result.rows[0].last_name;
             var aid = result.rows[0].acbl;
             var pn  = [];
             if (result.rows[0].acbl) {
