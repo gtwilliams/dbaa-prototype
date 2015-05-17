@@ -43,9 +43,9 @@ router.post('/login', function (req, res, next) {
         return;
     }
 
-    var q = "SELECT login, password, name\n" +
+    var q = "SELECT e_mail, password, first_name, last_name\n" +
             "  FROM users\n" +
-            " WHERE login = $1";
+            " WHERE e_mail = $1";
     db.query(q, [ req.body.e_mail ], function (err, result, done) {
         if (!result.rows || result.rows.length == 0) {
             res.render('login', {
@@ -61,7 +61,8 @@ router.post('/login', function (req, res, next) {
             result.rows[0].password, function (err, crypt_result) {
             /* OK, we have matched the E-mail address and password. */
             if (crypt_result) {
-                req.session.name   = result.rows[0].name;
+                req.session.name   = [ result.rows[0].first_name,
+                                       result.rows[0].last_name ].join(' ');
                 req.session.e_mail = req.body.e_mail;
                 return res.redirect('/');
             }
@@ -73,9 +74,7 @@ router.post('/login', function (req, res, next) {
                 delete req.session.e_mail;
                 res.render('login', {
                     error: true,
-                    title: 'Login',
-                    login: req.session.e_mail,
-                    name: req.session.name
+                    title: 'Login'
                 });
             }
         });
@@ -141,7 +140,8 @@ router.post('/create-login', function(req, res, next) {
         }
 
         /* Create the login ID */
-        q = "INSERT INTO users (login, password, name, e_mail)\n" +
+        q = "INSERT INTO users (password, first_name, " +
+                "last_name, e_mail)\n" +
             "VALUES ($1, $2, $3, $4)";
         bcrypt.hash(req.body.password, 8, function (err, hash) {
             if (err) {
@@ -149,8 +149,9 @@ router.post('/create-login', function(req, res, next) {
                 return next(err);
             }
 
-            db.query(q, [ req.body.e_mail, hash, req.body.name,
-                req.body.e_mail ], function (err, result, done) {
+            db.query(q, [ hash, req.body.first_name,
+                req.body.last_name, req.body.e_mail ],
+            function (err, result, done) {
                 if (err) {
                     console.log("Error trying to insert new login ID");
                     err.status = 500;
@@ -158,7 +159,8 @@ router.post('/create-login', function(req, res, next) {
                 }
 
                 /* Set session to logged in */
-                req.session.name   = req.body.name;
+                req.session.name   = [ req.body.first_name,
+                                       req.body.last_name ].join(' ');
                 req.session.e_mail = req.body.e_mail;
                 return res.render('index', {
                     title: 'Welcome to the DBAA Home Page',
@@ -195,7 +197,7 @@ router.post('/create-new-login', function(req, res, next) {
          * we can look up in the database to get the E-mail
          * address later. */
         mail.sendMail({
-            from: "Garry Williams <gtwilliams@gmail.com>",
+            from: '"' + config.e_mail_name + '" <' + config.e_mail + '>',
             to: req.body.login_name,
             subject: "Create Login on DBAA Web Site",
             text: "Go here to complete your sign-up: " +
@@ -299,7 +301,7 @@ router.get('/reset-password', function(req, res, next) {
             }
 
             mail.sendMail({
-                from: "Garry Williams <gtwilliams@gmail.com>",
+                from: '"' + config.e_mail_name + '" <' + config.e_mail + '>',
                 to: e_mail,
                 subject: "Reset Your DBAA Web Site Password",
                 text: "Dear " + name +

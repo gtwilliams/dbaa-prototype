@@ -46,8 +46,11 @@ block content
         E-mail address: #{e_mail}
       br
       span.caption.
-        Real name:
-      input.focus.required(name="name")
+        First name:
+      input.focus.required(name="first_name")
+      span.caption.
+        Last name:
+      input.required(name="last_name")
       span.explain.
         Enter your password twice (so that we know you didn't mis-type
         it) below to complete your sign-up.  In the future, you will
