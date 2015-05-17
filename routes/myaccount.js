@@ -48,25 +48,51 @@ router.get('/myaccount', function (req, res, next) {
             return next(e);
         }
 
-        /* Display the user's data for edit. */
-        var uid = result.rows[0].id;
-        var fn  = result.rows[0].first_name;
-        var ln  = result.rows[0].last_name;
-        var aid = result.rows[0].acbl;
-        var pn  = [];
-        if (result.rows[0].acbl != undefined) {
-            pn = $.map(result.rows, function (e, i) {
-                return { type : e.type, number : e.number };
+        var q_types = "SELECT name\n" +
+                      "  FROM phone_number_types\n" +
+                      " ORDER BY sort";
+        db.query(q_types, function (err2, result2, done2) {
+            if (err2) {
+                console.log("Retrieving phone number types: " + err2);
+                err2.status = 500;
+                return next(err2);
+            }
+
+            if (result2.rows.length == 0) {
+                console.log("No phone number types: " +
+                    req.session.email);
+                var e = new Error('Not Found');
+                e.status = 404;
+                return next(e);
+            }
+
+            var p_types = result2.rows.map(function (e, i) {
+                return e.name;
             });
-        }
-        res.render('my-account', {
-            title: 'My Account',
-            login: req.session.e_mail,
-            uid:   uid,
-            fn:    fn,
-            ln:    ln,
-            acbl:  aid,
-            phone: pn
+
+            /* Display the user's data for edit. */
+            var uid = result.rows[0].id;
+            var fn  = result.rows[0].first_name;
+            var ln  = result.rows[0].last_name;
+            var aid = result.rows[0].acbl;
+            var pn  = [];
+            if (result.rows[0].acbl) {
+                pn = result.rows.map(function (e, i) {
+                    return { type : e.type, number : e.number };
+                });
+            }
+
+            res.render('my-account', {
+                title: 'My Account',
+                login: req.session.e_mail,
+                uid:   uid,
+                fn:    fn,
+                ln:    ln,
+                acbl:  aid,
+                phone: pn,
+                name:  [fn, ln].join(' '),
+                ph_t:  p_types
+            });
         });
     });
 });

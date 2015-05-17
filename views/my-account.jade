@@ -3,7 +3,7 @@
 extends layout
 
 block content
-  h3 #{title}
+  h3= title
 
   style(type="text/css").
     .missing {
@@ -11,8 +11,11 @@ block content
       border-color: red;
       border-width: 2px;
     }
+    .caption { text-align: right; }
+    .value { text-align: left; }
   script(type="text/javascript").
     $(document).ready(function () {
+      $('li.login').addClass('active');
       $('input[type="submit"]').click(function (e) {
         /* check for missing data */
         var missing;
@@ -28,17 +31,58 @@ block content
         }
       });
     });
-  div
-    form(method="post" action="/myaccount")
-      input(type="hidden" name="id" value="#{id}")
-      input(type="hidden" name="e_mail" value="#{login}")
-      span.caption.
-        First name:
-      input.required(name="fn" value="#{fn}")
-      span.caption.
-        Last name:
-      input.required(name="ln" value="#{ln}")
-      input(type="submit" value="Submit")
+  form(method="post" action="/myaccount")
+    input(type="hidden" name="id" value="#{id}")
+    input(type="hidden" name="e_mail" value="#{login}")
+    div.container
+      div.row
+        div.col-md-2.col-xs-3
+          div.caption
+            span.caption.
+              First name:
+        div.col-md-2.col-xs-3
+          div.value
+            input.required(name="fn" value="#{fn}")
+        div.col-md-2.col-xs-3
+          div.caption
+            span.caption.
+              Last name:
+        div.col-md-2.col-xs-3
+          div.value
+            input.required(name="ln" value="#{ln}")
+      div.row
+        div.col-md-2.col-xs-3
+          div.caption
+            span.caption.
+              E-mail:
+        div.col-md-2.col-xs-3
+          div.value= login
+        div.col-md-2.col-xs-3
+          div.caption
+            span.caption.
+              ACBL Number:
+        div.col-md-2.col-xs-3
+          div.value
+            input.required(name="ln" value="#{acbl || ''}")
+      div.row
+        div.col-md-2.col-xs-3
+          div.caption
+            span.caption.
+              Add phone number:
+        div.col-md-2.col-xs-3
+          div.value
+            select.required(name="new_phone_type")
+              - for (var i = 0; i < ph_t.length; i++) {
+                option(value="#{ph_t[i]}")= ph_t[i]
+              - }
+        div.col-md-2.col-xs-3
+          div.caption
+            span.caption.
+              Phone number:
+        div.col-md-2.col-xs-3
+          div.value
+            input.required(name="new_phone_number")
+    input(type="submit" value="Update Directory")
 
 //- vim: sts=2 sw=2 ts=8 et ai syn=haml
 
