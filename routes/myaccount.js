@@ -30,11 +30,11 @@ router.get('/myaccount', function (req, res, next) {
             "               n.number\n" +
             "          FROM directory d\n" +
             "          LEFT OUTER JOIN phone_number n\n" +
-            "            ON d.id = n.dirctory\n" +
+            "            ON d.id = n.directory\n" +
             "       ) d\n" +
-            "    ON u.e_mail = d.e_mail\n" +
+            "    ON u.id = d.id\n" +
             " WHERE u.e_mail = $1";
-    db.query(q, [ req.session.email ], function (err, result, done) {
+    db.query(q, [ req.session.e_mail ], function (err, result, done) {
         if (err) {
             console.log("Retrieving user data: " + err);
             err.status = 500;
@@ -59,7 +59,7 @@ router.get('/myaccount', function (req, res, next) {
                 return { type : e.type, number : e.number };
             });
         }
-        res.render('myaccount', {
+        res.render('my-account', {
             title: 'My Account',
             login: req.session.e_mail,
             uid:   uid,
