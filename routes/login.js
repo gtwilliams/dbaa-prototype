@@ -1,23 +1,23 @@
 /* Copyright (c) 2015 Garry T. Williams */
 
-var router  = require('express').Router();
-var config  = require('../config.json');
-var crypto  = require('crypto');
-var bcrypt  = require('bcryptjs');
-var pg      = require('pg');
-var conn    = "postgres://" + config.dbuser + ":" + config.dbpass +
-              "@localhost/dbaa";
-var db      = new pg.Client(conn);
-var mailer  = require('nodemailer');
-var smtp    = require('nodemailer-smtp-transport');
-var mail    = mailer.createTransport(smtp({
-	      debug: true,
-	      service: 'SES',
-	      host: 'email-smtp.us-west-2.amazonaws.com',
-	      auth: {
-		  user: config.smtpuser,
-		  pass: config.smtppass
-	      }
+var router = require('express').Router();
+var config = require('../config.json');
+var crypto = require('crypto');
+var bcrypt = require('bcryptjs');
+var pg     = require('pg');
+var conn   = "postgres://" + config.dbuser + ":" + config.dbpass +
+             "@localhost/dbaa";
+var db     = new pg.Client(conn);
+var mailer = require('nodemailer');
+var smtp   = require('nodemailer-smtp-transport');
+var mail   = mailer.createTransport(smtp({
+	     debug: true,
+	     service: 'SES',
+	     host: config.smtphost,
+	     auth: {
+                 user: config.smtpuser,
+                 pass: config.smtppass
+	     }
 }));
 
 db.connect();
