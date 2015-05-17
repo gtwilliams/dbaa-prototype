@@ -244,6 +244,13 @@ router.get('/reset-password/:id', function (req, res, next) {
             "  FROM e_mail_campaign\n" +
             " WHERE id = $1";
     db.query(q, [ req.params.id ], function (err, result, done) {
+        if (err) {
+            console.log("Trying to retrieve e_mail_campaign: " +
+                    req.params.id + ": " + err);
+            err.status = 500;
+            return next(err);
+        }
+
         if (result.rows.length == 0) {
             var e = new Error('Not Found');
             e.status = 404;
