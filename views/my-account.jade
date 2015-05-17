@@ -63,25 +63,41 @@ block content
               ACBL Number:
         div.col-md-2.col-xs-3
           div.value
-            input.required(name="ln" value="#{acbl || ''}")
-      div.row
-        div.col-md-2.col-xs-3
-          div.caption
-            span.caption.
-              Add phone number:
-        div.col-md-2.col-xs-3
-          div.value
-            select.required(name="new_phone_type")
-              - for (var i = 0; i < ph_t.length; i++) {
-                option(value="#{ph_t[i]}")= ph_t[i]
-              - }
-        div.col-md-2.col-xs-3
-          div.caption
-            span.caption.
-              Phone number:
-        div.col-md-2.col-xs-3
-          div.value
-            input.required(name="new_phone_number")
+            input(name="ln" value="#{acbl || ''}")
+      - if (pn) {
+        - for (var i = 0; i < pn.length; i++) {
+          div.row
+            div.col-md-2.col-xs-3
+              div.caption
+                span.caption.
+                  Phone:
+            div.col-md-2.col-xs-3
+              div.value.
+                #{pn[i]}
+                Delete:
+                <input type="checkbox" name="del_ph_#{pn[i]}">
+        - }
+      - }
+      - if (ph_t) {
+        div.row
+          div.col-md-2.col-xs-3
+            div.caption
+              span.caption.
+                Add phone number:
+          div.col-md-2.col-xs-3
+            div.value
+              select.required(name="new_phone_type")
+                - for (var i = 0; i < ph_t.length; i++) {
+                  option(value="#{ph_t[i]}")= ph_t[i]
+                - }
+          div.col-md-2.col-xs-3
+            div.caption
+              span.caption.
+                Phone number:
+          div.col-md-2.col-xs-3
+            div.value
+              input(name="new_phone_number")
+    - }
     input(type="submit" value="Update Directory")
 
 //- vim: sts=2 sw=2 ts=8 et ai syn=haml
