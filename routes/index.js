@@ -2,12 +2,6 @@
 
 var router = require('express').Router();
 var config = require('../config.json');
-var pg     = require('pg');
-var conn   = "postgres://" + config.dbuser + ":" + config.dbpass +
-             "@localhost/dbaa";
-var db     = new pg.Client(conn);
-
-db.connect();
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
