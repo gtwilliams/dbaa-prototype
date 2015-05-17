@@ -34,7 +34,7 @@ router.get('/myaccount', function (req, res, next) {
             "       ) d\n" +
             "    ON u.e_mail = d.e_mail\n" +
             " WHERE u.e_mail = $1";
-    db.query(q, [ req.session.email ]. function (err, result, done) {
+    db.query(q, [ req.session.email ], function (err, result, done) {
         if (err) {
             console.log("Retrieving user data: " + err);
             err.status = 500;
