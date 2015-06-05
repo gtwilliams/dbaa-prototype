@@ -38,21 +38,24 @@ CREATE TABLE directory (
 );
 ALTER SEQUENCE directory_seq OWNED BY directory.id;
 
-CREATE TABLE phone_number (
-    directory INTEGER NOT NULL REFERENCES directory(id),
-    type      VARCHAR(30) NOT NULL DEFAULT 'Cell',
-    number    VARCHAR(10)
-);
-
-CREATE INDEX phone_number_directory ON phone_number(directory);
-
 CREATE TABLE phone_number_types (
     sort INTEGER NOT NULL DEFAULT 0,
-    name VARCHAR(30)
+    name VARCHAR(30) NOT NULL,
+    PRIMARY KEY (name)
 );
 
 INSERT INTO phone_number_types (sort, name) VALUES (1, 'Home');
 INSERT INTO phone_number_types (sort, name) VALUES (2, 'Cell');
 INSERT INTO phone_number_types (sort, name) VALUES (3, 'Work');
+
+CREATE TABLE phone_number (
+    directory INTEGER NOT NULL REFERENCES directory(id),
+    type      VARCHAR(30) NOT NULL DEFAULT 'Cell'
+        REFERENCES phone_number_types(name),
+    number    VARCHAR(10) NOT NULL,
+    PRIMARY KEY (directory, number)
+);
+
+CREATE INDEX phone_number_directory ON phone_number(directory);
 
 -- vim: sw=4 sts=4 ts=8 et ai syn=sql
