@@ -213,7 +213,8 @@ router.post('/myaccount', function (req, res, next) {
                         "    (directory, type, number)\n" +
                         "VALUES ($1, $2, $3)";
                     db.query(q, acct.uid, req.body.new_phone_type,
-                        req.body.new_phone_number ], function (err2)
+                        [ uid, req.body.new_phone_type,
+                          req.body.new_phone_number ], function (err2)
                     {
                         if (err2) {
                             console.log("Inserting new phone number: " +
