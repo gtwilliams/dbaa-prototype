@@ -10,6 +10,14 @@ var db      = new pg.Client(conn);
 
 db.connect();
 
+function format_tn(tn) {
+    if (tn.match(/^\d{10}$/) == null)
+        return tn;
+    return tn.substr(0, 3) +
+        '-' + tn.substr(3, 3) +
+        '-' + tn.substr(6, 4);
+}
+
 function get_myaccount(db, e_mail, callback) {
     var q = "SELECT u.id,\n" +
             "       u.first_name,\n" +
@@ -82,13 +90,13 @@ function get_myaccount(db, e_mail, callback) {
             var pn  = [];
             if (results.rows[0].d_last !== '') {
                 pn = results.rows.map(function (e, i) {
-                    return { type : e.type, number : e.number };
+                    return { type : e.type, number : format_tn(e.number) };
                 });
             }
 
             var acct = {
                 title: 'My Account',
-                dir:   results.rows[0].d_last != '',
+                dir:   results.rows[0].d_last != null,
                 login: e_mail,
                 uid:   uid,
                 fn:    fn,
@@ -112,11 +120,13 @@ function validate_phone_number(pn) {
     return null;
 }
 
-function add_phone_number(uid, type, number, callback) {
+function add_phone_number(e_mail, type, number, callback) {
     q = "INSERT INTO phone_number\n" +
         "    (directory, type, number)\n" +
-        "VALUES ($1, $2, $3)";
-    db.query(q, [ uid, type, number ], function (err) {
+        "VALUES ((SELECT id " +
+                   "FROM directory " +
+                  "WHERE e_mail = $1), $2, $3)";
+    db.query(q, [ e_mail, type, number ], function (err) {
         if (err) {
             console.log("Inserting new phone number: " + err);
             err.status = 500;
@@ -125,6 +135,7 @@ function add_phone_number(uid, type, number, callback) {
         }
 
         callback(null);
+        return;
     });
 }
 
@@ -163,12 +174,15 @@ router.post('/myaccount', function (req, res, next) {
                     return next(err);
                 }
 
+                acct.dir  = true;
+                acct.acbl = req.body.acbl;
+
                 /* XXX validate phone number */
                 /* Add a phone number. */
                 if (req.body.new_phone_number !== '') {
                     var p = validate_phone_number(req.body.new_phone_number);
                     if (p !== null) {
-                        add_phone_number(acct.uid,
+                        add_phone_number(acct.login,
                             req.body.new_phone_type, p, function (e)
                         {
                             if (e)
@@ -176,19 +190,22 @@ router.post('/myaccount', function (req, res, next) {
 
                             acct.phone = [{
                                 type: req.body.new_phone_type,
-                                number: p
+                                number: format_tn(p)
                             }];
 
                             return res.render('my-account', acct);
                         });
+                        return;
                     }
 
-                    return res.render('my-account', acct);
+                    else
+                        return res.render('my-account', acct);
                 }
 
                 else
                     return res.render('my-account', acct);
             });
+            return;
         }
 
         /* We have a directory, so need to update and/or add phone
@@ -204,6 +221,12 @@ router.post('/myaccount', function (req, res, next) {
 
         if (req.body.acbl != acct.acbl) {
             update_these.push(['acbl', req.body.acbl]);
+        }
+
+        /* Delete existing phone number(s) */
+        for (var i = 0; i < acct.phone.length; i++) {
+            if (req.body["del_ph_" + acct.phone[i].number]) {
+            }
         }
 
         if (update_these.length != 0) {
@@ -224,7 +247,7 @@ router.post('/myaccount', function (req, res, next) {
                 if (req.body.new_phone_number !== '') {
                     var p = validate_phone_number(req.body.new_phone_number);
                     if (p !== null) {
-                        add_phone_number(acct.uid, req.body.new_phone_type,
+                        add_phone_number(acct.login, req.body.new_phone_type,
                             p, function (e)
                         {
                             if (e)
@@ -232,11 +255,12 @@ router.post('/myaccount', function (req, res, next) {
 
                             acct.phone.push({
                                 type: req.body.new_phone_type,
-                                number: p
+                                number: format_tn(p)
                             });
 
                             return res.render('my-account', acct);
                         });
+                        return;
                     }
 
                     return res.render('my-account', acct);
@@ -245,6 +269,28 @@ router.post('/myaccount', function (req, res, next) {
                 else
                     return res.render('my-account', acct);
             });
+        }
+
+        else if (req.body.new_phone_number !== '') {
+            var p = validate_phone_number(req.body.new_phone_number);
+            if (p !== null) {
+                add_phone_number(acct.login, req.body.new_phone_type,
+                    p, function (e)
+                {
+                    if (e)
+                        return next(e);
+
+                    acct.phone.push({
+                        type: req.body.new_phone_type,
+                        number: format_tn(p)
+                    });
+
+                    return res.render('my-account', acct);
+                });
+                return;
+            }
+
+            return res.render('my-account', acct);
         }
 
         else
