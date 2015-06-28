@@ -63,19 +63,19 @@ block content
               ACBL Number:
         div.col-md-2.col-xs-3
           div.value
-            input(name="ln" value="#{acbl || ''}")
-      - if (pn) {
-        - for (var i = 0; i < pn.length; i++) {
+            input(name="acbl" value="#{acbl || ''}")
+      - if (phone) {
+        - for (var i = 0; i < phone.length; i++) {
           div.row
             div.col-md-2.col-xs-3
               div.caption
                 span.caption.
                   Phone:
-            div.col-md-2.col-xs-3
+            div.col-md-4.col-xs-6
               div.value.
-                #{pn[i]}
+                #{phone[i].number} (#{phone[i].type})
                 Delete:
-                <input type="checkbox" name="del_ph_#{pn[i]}">
+                <input type="checkbox" name="del_ph_#{phone[i].number}">
         - }
       - }
       - if (ph_t) {
