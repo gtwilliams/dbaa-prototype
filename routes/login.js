@@ -197,7 +197,7 @@ router.post('/create-new-login', function(req, res, next) {
          * we can look up in the database to get the E-mail
          * address later. */
         mail.sendMail({
-            from: '"' + config.e_mail_name + '" <' + config.e_mail + '>',
+            from: '"' + config.web_mail_name + '" <' + config.web_mail + '>',
             to: req.body.login_name,
             subject: "Create Login on DBAA Web Site",
             text: "Go here to complete your sign-up: " +
@@ -266,7 +266,8 @@ router.get('/reset-password/:id', function (req, res, next) {
     });
 });
 
-/* Reset my password! */
+/* Reset my password! This is where the user *requests* that he can
+ * reset his password. */
 router.get('/reset-password', function(req, res, next) {
     if (req.query.e_mail === undefined || req.query.e_mail == "") {
         var err = new Error('Not found');
@@ -276,9 +277,9 @@ router.get('/reset-password', function(req, res, next) {
 
     /* Let's look you up first -- you must have an account here to
      * reset a password. */
-    var q = "SELECT id, name, e_mail\n" +
+    var q = "SELECT id, first_name, last_name, e_mail\n" +
             "  FROM users\n" +
-            " WHERE login = $1";
+            " WHERE e_mail = $1";
     db.query(q, [ req.query.e_mail ], function (err, result, done) {
         if (err) {
             err.status = 500;
@@ -296,7 +297,8 @@ router.get('/reset-password', function(req, res, next) {
 
         var e_mail   = result.rows[0].e_mail;
         var login_id = result.rows[0].id;
-        var name     = result.rows[0].name;
+        var name     = result.rows[0].first_name + " " +
+                       result.rows[0].last_name;
         var id = crypto.randomBytes(20).toString('hex');
         q = "INSERT INTO e_mail_campaign\n" +
             "    (e_mail, id, name, campaign)\n" +
@@ -308,7 +310,8 @@ router.get('/reset-password', function(req, res, next) {
             }
 
             mail.sendMail({
-                from: '"' + config.e_mail_name + '" <' + config.e_mail + '>',
+                from: '"' + config.web_mail_name + '" <' +
+                    config.web_mail + '>',
                 to: e_mail,
                 subject: "Reset Your DBAA Web Site Password",
                 text: "Dear " + name +
@@ -327,7 +330,8 @@ router.get('/reset-password', function(req, res, next) {
                 else {
                     return res.render('sent-mail',
                         {
-                            title: "E-mail Sent"
+                            title: "E-mail Sent",
+                            e_mail: e_mail
                         });
                 }
             });
@@ -372,6 +376,7 @@ router.post('/reset-password', function(req, res, next) {
 
         /* Update the user's password */
         var login_id = result.rows[0].campaign;
+        var e_mail   = result.rows[0].e_mail;
         q = "UPDATE users\n" +
             "   SET password = $1\n" +
             " WHERE id = $2";
@@ -384,17 +389,37 @@ router.post('/reset-password', function(req, res, next) {
             db.query(q, [ hash, login_id ], function (err, result, done) {
                 if (err) {
                     console.log("Error trying to update password for "
-                        + result.rows[0].login);
+                        + e_mail);
                     err.status = 500;
                     return next(err);
                 }
 
-                req.session.name   = req.body.name;
-                req.session.e_mail = req.body.e_mail;
-                return res.render('index', {
-                    title: 'Welcome to the DBAA Home Page',
-                    name: req.session.name,
-                    login: req.session.e_mail
+                q = "SELECT first_name, last_name\n" +
+                    "  FROM users\n" +
+                    " WHERE e_mail = $1";
+                db.query(q, [ e_mail ], function (err, result, done) {
+                    if (err) {
+                        console.log("Error reading user record for "
+                            + e_mail);
+                        err.status = 500;
+                        return next(err);
+                    }
+
+                    if (result.rows.length == 0) {
+                        console.log("Can't find user record for " + e_mail);
+                        var e = new Error('Not found');
+                        e.status = 404;
+                        return next(e);
+                    }
+
+                    req.session.name   = [ result.rows[0].first_name,
+                                           result.rows[0].last_name ].join(' ');
+                    req.session.e_mail = req.body.e_mail;
+                    return res.render('index', {
+                        title: 'Welcome to the DBAA Home Page',
+                        name: req.session.name,
+                        login: req.session.e_mail
+                    });
                 });
             });
         });
