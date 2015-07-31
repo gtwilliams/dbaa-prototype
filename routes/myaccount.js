@@ -226,6 +226,23 @@ router.post('/myaccount', function (req, res, next) {
         /* Delete existing phone number(s) */
         for (var i = 0; i < acct.phone.length; i++) {
             if (req.body["del_ph_" + acct.phone[i].number]) {
+                db.query(
+                    "DELETE FROM phone_number\n" +
+                    " WHERE phone_number = $1\n" +
+                    "   AND directory = (SELECT id\n" +
+                    "                      FROM directory\n" +
+                    "                     WHERE e_mail = $2)",
+                    [ validate_phone_number(acct.phone[i].number),
+                        acct.login ],
+                    function (e) {
+                        if (e) {
+                            e.status = 404;
+                            return next(e);
+                        }
+
+                        return;
+                    }
+                );
             }
         }
 
