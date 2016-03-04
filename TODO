@@ -1,0 +1,2 @@
+Garbage collect the e_mail_campaign table.  Delete rows after so many
+days?
